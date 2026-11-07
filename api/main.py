@@ -2,9 +2,12 @@
 
 from contextlib import asynccontextmanager
 import logging
-from fastapi import FastAPI, status, HTTPException
+import time
+from typing import Dict, Any
+from fastapi import FastAPI, status, HTTPException, Request
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 
 from api.config import (
     API_TITLE,
@@ -27,6 +30,26 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 
+TAGS_METADATA = [
+    {
+        "name": "General",
+        "description": "Core service metadata, directory, and status endpoints.",
+    },
+    {
+        "name": "Diagnostics",
+        "description": "System health probes, model readiness, and verified benchmark metrics.",
+    },
+    {
+        "name": "Inference",
+        "description": "Real-time customer churn risk evaluation and retention playbooks.",
+    },
+    {
+        "name": "Explainability",
+        "description": "Local feature attribution engine powered by SHAP TreeExplainer.",
+    },
+]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager to initialize the model on startup."""
@@ -44,15 +67,43 @@ app = FastAPI(
     title=API_TITLE,
     version=API_VERSION,
     description=API_DESCRIPTION,
+    openapi_tags=TAGS_METADATA,
+    contact={
+        "name": "Kanishk",
+        "url": "https://github.com/Kanishk199/customer-churn-prediction",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
     docs_url="/docs",
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     lifespan=lifespan,
 )
 
+# Enable Cross-Origin Resource Sharing (CORS) for decoupled dashboards
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    """Inject inference and processing latency telemetry header."""
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = f"{process_time:.4f}s"
+    return response
+
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Provide formatted, readable error messages for validation failures."""
     errors = []
     for error in exc.errors():
@@ -87,6 +138,7 @@ async def root() -> RootResponse:
         docs_url="/docs",
         health_url="/health",
         predict_url="/predict",
+        benchmark_url="/benchmark",
     )
 
 
@@ -109,6 +161,16 @@ async def health() -> HealthResponse:
         medium_risk_upper_bound=MEDIUM_RISK_UPPER_BOUND,
         features_expected=len(ORDERED_FEATURE_COLUMNS),
     )
+
+
+@app.get(
+    "/benchmark",
+    tags=["Diagnostics"],
+    summary="Verified model benchmark comparison and evaluation metrics",
+)
+async def benchmark() -> Dict[str, Any]:
+    """Retrieve verified evaluation metrics, hyperparameters, and comparison results from the model audit."""
+    return model_service.get_benchmark_data()
 
 
 @app.post(

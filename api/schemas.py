@@ -289,3 +289,4 @@ class RootResponse(BaseModel):
     docs_url: str = Field(..., examples=["/docs"])
     health_url: str = Field(..., examples=["/health"])
     predict_url: str = Field(..., examples=["/predict"])
+    benchmark_url: Optional[str] = Field("/benchmark", examples=["/benchmark"])

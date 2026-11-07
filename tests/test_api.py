@@ -189,3 +189,20 @@ class TestApiEndpoints:
             model_service.pipeline = original_pipeline
             model_service.is_loaded = original_status
             model_service.load_error = None
+
+    def test_benchmark_endpoint(self, client):
+        """Verify GET /benchmark returns model comparison and verified metrics."""
+        response = client.get("/benchmark")
+        assert response.status_code == 200
+        data = response.json()
+        assert "selected_best_model" in data
+        assert data["selected_best_model"] == "Random Forest"
+        assert "model_comparison" in data
+        assert "random_forest" in data["model_comparison"]
+
+    def test_process_time_header_injected(self, client):
+        """Verify response contains X-Process-Time latency header."""
+        response = client.get("/health")
+        assert response.status_code == 200
+        assert "x-process-time" in response.headers
+        assert response.headers["x-process-time"].endswith("s")

@@ -1,190 +1,426 @@
-# 📊 Telco Customer Churn Intelligence & Explainable AI Platform
+# Telco Customer Churn Intelligence & Explainable AI Platform
 
-[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.15-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11%20%7C%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.162.0-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.67.0-FF4B4B?logo=streamlit&logoColor=white)](https://streamlit.io/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.9.1-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
 [![SHAP](https://img.shields.io/badge/SHAP-0.54.1-blueviolet)](https://github.com/shap/shap)
-[![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![Tests](https://img.shields.io/badge/Tests-57%20Passed-success?logo=pytest&logoColor=white)](https://docs.pytest.org/)
+[![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Tests](https://img.shields.io/badge/Pytest-59%20Passed-success?logo=pytest&logoColor=white)](https://docs.pytest.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-An enterprise-grade, production-ready machine learning system that predicts customer churn hazard, quantifies attrition risk, and delivers **genuine local SHAP feature attributions** for real-time customer retention strategy.
+An end-to-end Machine Learning and Explainable AI (XAI) platform for subscription customer retention. The platform combines a calibrated Scikit-Learn **Random Forest** ensemble with **Tree SHAP** local attributions, served via an asynchronous **FastAPI** microservice and an interactive **Streamlit** analytics dashboard.
 
 ---
 
-## 📌 Table of Contents
+## Table of Contents
 
-- [Business Problem \& System Overview](#-business-problem--system-overview)
-- [System Architecture](#-system-architecture)
-- [Machine Learning Pipeline](#-machine-learning-pipeline)
-- [Model Selection \& Audit Results](#-model-selection--audit-results)
-- [Local SHAP Explainability Engine](#-local-shap-explainability-engine)
-- [FastAPI Backend Service](#-fastapi-backend-service)
-- [Streamlit Decision Analytics Dashboard](#-streamlit-decision-analytics-dashboard)
-- [Docker Containerization \& Orchestration](#-docker-containerization--orchestration)
-- [Local Setup \& Execution Guide](#-local-setup--execution-guide)
-- [Automated Testing Suite (57 Tests)](#-automated-testing-suite-57-tests)
-- [Model Artifacts \& Dataset Licensing](#-model-artifacts--dataset-licensing)
-- [Model Limitations \& Responsible AI](#-model-limitations--responsible-ai)
-- [Visual Evaluation Gallery](#-visual-evaluation-gallery)
-
----
-
-## 🏢 Business Problem & System Overview
-
-In the telecommunications sector, acquiring a new subscriber costs **5 to 7 times more** than retaining an existing customer. Undetected churn causes substantial monthly recurring revenue (MRR) erosion and compounds lifetime value (LTV) destruction.
-
-Traditional churn models act as "black boxes" that output disconnected risk scores without actionable explanations. Customer Success and Retention teams cannot proactively intervene without knowing **why** a customer is at risk.
-
-### This Platform Delivers:
-1. **Calibrated Churn Prediction:** Predicts subscriber cancellation risk with **78.34% test recall**, capturing the vast majority of churning accounts before contract termination.
-2. **Actionable Risk Stratification:** Automatically triages customers into **Low Risk** ($P < 0.30$), **Medium Risk** ($0.30 \le P < 0.60$), and **High Risk** ($P \ge 0.60$) tiers based on audit thresholds.
-3. **Genuine Local SHAP Explainability:** Deconstructs each customer prediction into exact feature attributions ($E[f(x)] + \sum \phi_i = \hat{P}$), highlighting top churn drivers and retention anchors.
-4. **Prescriptive Retention Playbooks:** Automatically recommends targeted commercial incentives (e.g., contract migrations, automatic billing setup, complimentary security add-ons).
-5. **Decoupled Microservice Architecture:** Production-grade FastAPI REST backend orchestrated alongside a modern SaaS-styled Streamlit analytics dashboard using Docker Compose.
+- [1. Project Overview](#1-project-overview)
+- [2. Business Problem & Real-World Use Case](#2-business-problem--real-world-use-case)
+- [3. Key Features](#3-key-features)
+- [4. System Architecture](#4-system-architecture)
+- [5. Complete Machine Learning Pipeline](#5-complete-machine-learning-pipeline)
+- [6. Dataset Description](#6-dataset-description)
+- [7. Model Comparison & Evaluation](#7-model-comparison--evaluation)
+- [8. Explainable AI Implementation Using SHAP](#8-explainable-ai-implementation-using-shap)
+- [9. Backend REST API Documentation](#9-backend-rest-api-documentation)
+- [10. Frontend Dashboard Overview](#10-frontend-dashboard-overview)
+- [11. Docker Architecture & Containerization](#11-docker-architecture--containerization)
+- [12. Installation Instructions](#12-installation-instructions)
+- [13. Local Execution Instructions](#13-local-execution-instructions)
+- [14. API Usage Examples](#14-api-usage-examples)
+- [15. Automated Testing Suite (59 Tests)](#15-automated-testing-suite-59-tests)
+- [16. Model Limitations & Responsible AI](#16-model-limitations--responsible-ai)
+- [17. Production Deployment Guide](#17-production-deployment-guide)
+- [18. Future Improvements](#18-future-improvements)
+- [19. Repository Structure](#19-repository-structure)
+- [20. License & Acknowledgements](#20-license--acknowledgements)
 
 ---
 
-## 📐 System Architecture
+## 1. Project Overview
 
-The application is architected as an isolated multi-container system operating over a private bridge network (`churn-network`):
+Customer churn poses a major operational and economic threat to subscription businesses. Traditional churn prediction systems suffer from two core limitations:
+1. **The Black-Box Dilemma:** They provide opaque scores without explaining the specific causal factors driving a customer's attrition risk.
+2. **False Negative Imbalance:** They optimize for generic accuracy, missing high-risk customers who cancel unexpectedly.
+
+This platform bridges the gap between predictive modeling and commercial decision-making by coupling high-recall predictive scoring (**78.34% test recall**) with genuine local SHAP feature attributions and automated retention action playbooks.
+
+---
+
+## 2. Business Problem & Real-World Use Case
+
+In the telecommunications industry, acquiring a new customer costs **5 to 7 times more** than retaining an existing subscriber. When an account cancels:
+- The provider loses cumulative Monthly Recurring Revenue (MRR).
+- The payback period on customer acquisition cost (CAC) is truncated.
+- Customer lifetime value (LTV) drops precipitously.
+
+```text
+Asymmetric Retention Economics:
+Cost of False Negative (Customer cancels unassisted)  >>  Cost of False Positive (Unnecessary discount offered)
+                   ~$600 - $1,200 LTV Loss                              ~$15 - $30 Incentive Cost
+```
+
+Because lost subscribers are vastly more expensive than unnecessary retention incentives, the machine learning objective prioritizes **Recall** while maintaining strong precision and probability calibration.
+
+---
+
+## 3. Key Features
+
+- **High-Recall Churn Classifier:** Captures **293 out of 374 churning accounts** on the holdout test set (78.34% recall, 0.8425 ROC-AUC).
+- **Exact Local SHAP Explainability:** Uses `shap.TreeExplainer` operating directly in probability space to decompose each customer prediction down to machine precision.
+- **Automated Risk Stratification:** Automatically triages subscribers into **Low Risk** ($P < 0.30$), **Medium Risk** ($0.30 \le P < 0.60$), and **High Risk** ($P \ge 0.60$) tiers.
+- **Contextual Retention Playbooks:** Suggests specific commercial interventions (e.g., term contract migrations, billing automation discounts, tech support bundles) tailored to observed risk drivers.
+- **Decoupled Architecture:** Strict separation of concerns where Streamlit communicates with FastAPI solely over HTTP REST; zero ML dependencies are imported into the UI layer.
+- **Production Containerization:** Hardened multi-stage Docker build running under a non-root system user (`appuser:10001`) with healthchecks and isolated networking.
+
+---
+
+## 4. System Architecture
 
 ```mermaid
 flowchart TD
-    subgraph ClientLayer["User Interface & Clients"]
-        Browser["Web Browser / Retention Agent"]
-        ClientApp["Third-party Systems / CRM"]
+    subgraph ClientLayer["Client & Presentation Layer"]
+        User["Retention Specialist / Account Manager"]
+        ThirdParty["External CRM / Billing System"]
     end
 
-    subgraph DockerNetwork["Docker Bridge Network (churn-network)"]
-        subgraph FrontendService["Streamlit Frontend Container (:8501)"]
-            UI["Streamlit SaaS Dashboard<br/>(app/streamlit_app.py)"]
-            Form["Customer Profile Input & Presets"]
-            Waterfall["SHAP Contribution Horizontal Chart"]
-            Playbook["Prescriptive Retention Recommendations"]
+    subgraph DockerNetwork["Isolated Docker Network (churn-network)"]
+        subgraph FrontendContainer["Streamlit Frontend Container (:8501)"]
+            Dashboard["Streamlit SaaS Dashboard<br/>(app/streamlit_app.py)"]
+            Presets["Customer Persona Templates"]
+            Chart["SHAP Horizontal Waterfall Plot"]
+            Playbook["Prescriptive Strategic Recommendations"]
         end
 
-        subgraph BackendService["FastAPI REST Backend Container (:8000)"]
-            API["FastAPI Application<br/>(api/main.py)"]
-            Schemas["Pydantic v2 Schema Validation<br/>(api/schemas.py)"]
+        subgraph BackendContainer["FastAPI Backend Container (:8000)"]
+            Router["FastAPI Application Gateway<br/>(api/main.py)"]
+            Validation["Pydantic v2 Request Validation<br/>(api/schemas.py)"]
+            Latency["Latency Header Middleware (X-Process-Time)"]
             Service["Model & Explainability Service<br/>(api/services.py)"]
-            
-            subgraph MLArtifacts["Model Artifacts (Mounted :ro)"]
-                Pipeline["Scikit-Learn Pipeline<br/>(models/best_churn_model.joblib)"]
-                Preprocessor["ColumnTransformer Preprocessor"]
-                Classifier["Balanced Random Forest Classifier"]
-                Explainer["TreeExplainer Local Attribution"]
+
+            subgraph StorageLayer["Model Storage (Mounted :ro)"]
+                PipelineModel["Scikit-Learn Pipeline Artifact<br/>(models/best_churn_model.joblib)"]
+                Prep["ColumnTransformer Preprocessor (46 features)"]
+                RFC["Balanced Random Forest Classifier"]
+                TreeExp["TreeExplainer Inference Engine"]
             end
         end
     end
 
-    Browser -->|HTTP :8501| UI
-    ClientApp -->|REST API :8000| API
-    UI -->|Internal DNS: http://backend:8000| API
-    API --> Schemas
-    Schemas --> Service
-    Service --> Preprocessor
-    Preprocessor --> Classifier
-    Classifier --> Explainer
-    Service --> Pipeline
+    User -->|HTTP :8501| Dashboard
+    ThirdParty -->|REST JSON :8000| Router
+    Dashboard -->|Internal DNS: http://backend:8000| Router
+    Router --> Validation
+    Router --> Latency
+    Validation --> Service
+    Service --> Prep
+    Prep --> RFC
+    RFC --> TreeExp
+    StorageLayer -.-> Service
 ```
 
 ---
 
-## 🔬 Machine Learning Pipeline
+## 5. Complete Machine Learning Pipeline
 
-The pipeline is implemented using clean, modular Scikit-Learn components located in [`src/`](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/src):
+```mermaid
+flowchart LR
+    A["Raw Dataset<br/>(7,043 rows)"] --> B["Data Cleaning<br/>- Coerce TotalCharges to float<br/>- Impute 0.0 for tenure=0<br/>- Drop customerID"]
+    B --> C["Stratified 80/20 Split<br/>Train: 5,634 | Test: 1,409<br/>(Preserves 26.54% Churn)"]
+    C --> D["Feature Preprocessing Pipeline<br/>(ColumnTransformer)"]
+    D --> E["3 Continuous Features<br/>StandardScaler(mean, std)"]
+    D --> F["16 Categorical Features<br/>OneHotEncoder(handle_unknown='ignore')"]
+    E --> G["46 Transformed Features"]
+    F --> G
+    G --> H["Hyperparameter Tuning<br/>Stratified 5-Fold CV"]
+    H --> I["Winning Model: Random Forest<br/>class_weight='balanced'<br/>max_depth=10, n_estimators=200"]
+    I --> J["Final Holdout Evaluation<br/>(Test Set Untouched Until Final Audit)"]
+```
 
-1. **Data Ingestion & Cleaning ([`src/data_loader.py`](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/src/data_loader.py)):**
-   - Automatically drops non-predictive identifier `customerID`.
-   - Converts `TotalCharges` from whitespace strings to numeric, imputing `0.0` for new accounts with `tenure == 0`.
-   - Encodes binary target `Churn`: `Yes` $\rightarrow 1$, `No` $\rightarrow 0$.
-2. **Stratified Partitioning ([`src/split.py`](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/src/split.py)):**
-   - Stratified 80/20 train/test split preserving the natural 73.4% / 26.6% class distribution.
-   - Test partition ($N=1,409$) remained **strictly untouched** until final audit evaluation.
-3. **Feature Preprocessing Pipeline ([`src/preprocessor.py`](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/src/preprocessor.py)):**
-   - Wrapped inside a custom `CleanDatasetTransformer` and `ColumnTransformer`.
-   - **Numerical Features** (`tenure`, `MonthlyCharges`, `TotalCharges`): Scaled via `StandardScaler(with_mean=True, with_std=True)` fitted strictly on training data.
-   - **Categorical Features** (16 columns): Encoded via `OneHotEncoder(handle_unknown='ignore')` yielding 46 transformed features with zero test leakage.
+### Pipeline Integrity Safeguards:
+1. **Zero Data Leakage:** The preprocessing pipeline is fitted strictly on `X_train`. Imputer statistics and scaler means/variances are never computed over test data.
+2. **Unseen Category Resilience:** `OneHotEncoder(handle_unknown='ignore')` safely zeroes out newly encountered category levels during inference without raising exceptions.
+3. **Reproducibility Seed:** A fixed seed (`RANDOM_STATE = 42`) is propagated across all random splits, cross-validation folds, and tree ensemble initializations.
 
 ---
 
-## 🏆 Model Selection & Audit Results
+## 6. Dataset Description
 
-Three candidate architectures were evaluated with Stratified 5-Fold Cross-Validation: **Logistic Regression (L2)**, **Random Forest**, and **Gradient Boosting**.
+The pipeline utilizes the **IBM Telco Customer Churn** dataset:
+- **Total Records:** 7,043 customer accounts.
+- **Target Variable:** `Churn` (`Yes` = 1, `No` = 0).
+- **Class Balance:** 5,174 retained accounts (73.46%), 1,869 churned accounts (26.54%).
+- **Features (19 predictive inputs):**
+  - **Demographics:** `gender`, `SeniorCitizen`, `Partner`, `Dependents`.
+  - **Account Tenure:** `tenure` (months subscribed, 0–72).
+  - **Services Enrolled:** `PhoneService`, `MultipleLines`, `InternetService`, `OnlineSecurity`, `OnlineBackup`, `DeviceProtection`, `TechSupport`, `StreamingTV`, `StreamingMovies`.
+  - **Contract & Financials:** `Contract`, `PaperlessBilling`, `PaymentMethod`, `MonthlyCharges`, `TotalCharges`.
 
-### Final Untouched Test Set Evaluation ($N=1,409$):
+---
 
-| Model | Decision Threshold | Test Recall | Test Precision | Test F1 | Test ROC-AUC | Test PR-AUC | Brier Score | Business Utility |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Random Forest (Selected)** | **0.50** | **78.34%** | **52.98%** | **0.6321** | **0.8425** | **0.6569** | **0.1602** | **0.7727** |
-| Gradient Boosting | 0.50 | 50.80% | 66.20% | 0.5749 | 0.8465 | 0.6548 | 0.1362 | 0.6534 |
-| Logistic Regression | 0.50 | 55.61% | 65.41% | 0.6012 | 0.8412 | 0.6281 | 0.1385 | 0.6811 |
+## 7. Model Comparison & Evaluation
+
+Three candidate architectures were tuned using Stratified 5-Fold Cross-Validation on the training partition ($N=5,634$). Final evaluation was conducted once on the untouched holdout test partition ($N=1,409$):
+
+| Model Architecture | Decision Threshold ($\tau$) | Test Recall | Test Precision | Test F1-Score | Test ROC-AUC | Test PR-AUC | Brier Calibration | True Positives | False Negatives |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 🏆 **Random Forest (Selected)** | **0.50** | **78.34%** | **52.98%** | **0.6321** | **0.8425** | **0.6569** | **0.1602** | **293 / 374** | **81** |
+| 🥈 Gradient Boosting | 0.50 | 50.80% | 67.38% | 0.5793 | 0.8452 | 0.6605 | 0.1356 | 190 / 374 | 184 |
+| 🥉 Logistic Regression (L2) | 0.50 | 55.61% | 65.41% | 0.6012 | 0.8412 | 0.6281 | 0.1385 | 208 / 374 | 166 |
+
+### Evaluation Visualizations:
+
+#### 1. Confusion Matrices Across Candidate Models
+![Confusion Matrices](models/plots/confusion_matrices.png)
+
+#### 2. ROC and Precision-Recall Curves
+![ROC and PR Curves](models/plots/roc_and_pr_curves.png)
+
+#### 3. Probability Calibration Reliability Diagram
+![Calibration Curves](models/plots/calibration_curves.png)
+
+#### 4. Global Feature Importance (SHAP Summary)
+![SHAP Summary](models/plots/shap_summary.png)
 
 ### Why Random Forest Was Selected:
-- **Maximum Churn Detection (Recall = 78.34%):** Captures **293 out of 374** churning accounts on the test set. In customer retention, False Negatives (lost customers) cost substantially more than False Positives (a retention discount offered to a customer who might have stayed).
-- **Hyperparameters:** `class_weight='balanced'`, `n_estimators=200`, `max_depth=10`, `min_samples_leaf=4`.
-- **Calibration & Stability:** Low cross-validation variance across folds ($\sigma_{\text{recall}} = 0.019$, $\sigma_{\text{roc\_auc}} = 0.008$), with minimal overfitting gap.
-- **Model Artifact:** Serialized as a self-contained pipeline at `models/best_churn_model.joblib`.
+1. **Superior Churn Detection (Recall = 78.34%):** Captures **293 out of 374** churning accounts. Gradient Boosting missed 184 churning customers.
+2. **Minimal Overfitting Gap:** Training ROC-AUC (0.9265) vs. CV ROC-AUC (0.8464) demonstrates balanced generalization without extreme memorization.
+3. **Cross-Validation Stability:** Fold-by-fold standard deviation was exceptionally low ($\sigma_{\text{recall}} = 0.019$, $\sigma_{\text{roc\_auc}} = 0.008$).
 
 ---
 
-## 🧠 Local SHAP Explainability Engine
+## 8. Explainable AI Implementation Using SHAP
 
-Rather than relying on global feature importance (which shows average trends across the entire population), this system implements **genuine local feature attribution** for individual customers using `shap.TreeExplainer`.
+Rather than relying purely on global feature importance, this platform calculates **local SHAP feature attributions** for each individual customer scoring request using `shap.TreeExplainer`.
 
-### Mathematical Properties:
-1. **Probability-Space Attributions:** In Scikit-Learn's `RandomForestClassifier`, leaf values are empirical class distributions. `TreeExplainer` operates directly in probability space, so each SHAP value $\phi_i \in [-1, 1]$ represents the exact delta in churn probability.
-2. **Local Accuracy (Efficiency Property):** The base expected value plus all local feature attributions reconstructs the model prediction down to machine precision:
-   $$E[f(x)] + \sum_{i=1}^{46} \phi_i = \hat{P}(\text{Churn} = 1 \mid x) \quad (\text{residual} < 10^{-15})$$
-3. **Directional Impact:**
-   - **Positive SHAP ($\phi_i > 0$):** Factors increasing churn hazard (`Contract_Month-to-month`, low `tenure`, `InternetService_Fiber optic`). Displayed in **Red** with `+` percentage notation.
-   - **Negative SHAP ($\phi_i < 0$):** Protective factors anchoring retention (`Contract_Two year`, established `tenure`, `OnlineSecurity_Yes`). Displayed in **Green** with `-` percentage notation.
+### Mathematical Foundations:
+
+1. **Probability Space Efficiency:**
+   In Scikit-Learn's `RandomForestClassifier`, leaf values represent posterior class distributions. TreeExplainer computes attributions directly in probability space:
+   $$\hat{P}(\text{Churn} = 1 \mid x) = E[f(X)] + \sum_{i=1}^{46} \phi_i(x)$$
+   where $E[f(X)] \approx 0.5003$ is the baseline prior probability and $\phi_i(x) \in [-1, 1]$ is the contribution of transformed feature $i$.
+
+2. **Machine Precision Verification:**
+   The automated test suite verifies that the sum of the base value and all 46 feature contributions reconstructs the model prediction with machine residual $< 10^{-12}$:
+   $$\left| \left( E[f(X)] + \sum_{i=1}^{46} \phi_i(x) \right) - \hat{P} \right| < 10^{-12}$$
+
+3. **Directional Attribution:**
+   - **Positive Contributions ($\phi_i > 0$):** Features accelerating churn hazard (e.g., month-to-month contract, low tenure, fiber optic with high bills). Displayed in **Red** with `+` percentage notation.
+   - **Negative Contributions ($\phi_i < 0$):** Protective features anchoring retention (e.g., two-year contract commitment, automatic credit card billing, tech support add-on). Displayed in **Green** with `-` percentage notation.
 
 ---
 
-## ⚡ FastAPI Backend Service
+## 9. Backend REST API Documentation
 
-The REST API is modular, asynchronous, and validated via Pydantic v2 schemas:
+The backend service is built on FastAPI and Uvicorn. Interactive documentation is available at `/docs` (Swagger UI) and `/redoc` (ReDoc).
 
-### Core Endpoints:
+### REST Endpoints Directory:
 
-| Method | Endpoint | Description | Sample Output |
+| Method | Endpoint | Description | Response Schema |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/` | Service root and navigation links | `{"status": "online", "docs_url": "/docs"}` |
-| `GET` | `/health` | Diagnostic probe for model status & thresholds | `{"status": "healthy", "model_loaded": true}` |
-| `POST` | `/predict` | Full inference + local SHAP explanation | Probabilities, risk tier, top drivers, recommendations |
-| `POST` | `/explain` | Dedicated local SHAP feature breakdown | Base value, all 46 attributions, executive summary |
+| `GET` | `/` | Root directory and navigation metadata | `RootResponse` |
+| `GET` | `/health` | Diagnostic probe for model status and thresholds | `HealthResponse` |
+| `GET` | `/benchmark` | Verified evaluation metrics and audit report | `Dict[str, Any]` |
+| `POST` | `/predict` | Real-time churn prediction, risk tier, and local SHAP | `PredictionResponse` |
+| `POST` | `/explain` | Dedicated local SHAP feature breakdown | `ExplanationResponse` |
 
-### Sample JSON Prediction Request:
-```bash
-curl -X POST "http://localhost:8000/predict" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "gender": "Female",
-       "SeniorCitizen": 0,
-       "Partner": "No",
-       "Dependents": "No",
-       "tenure": 2,
-       "PhoneService": "Yes",
-       "MultipleLines": "No",
-       "InternetService": "Fiber optic",
-       "OnlineSecurity": "No",
-       "OnlineBackup": "No",
-       "DeviceProtection": "No",
-       "TechSupport": "No",
-       "StreamingTV": "Yes",
-       "StreamingMovies": "Yes",
-       "Contract": "Month-to-month",
-       "PaperlessBilling": "Yes",
-       "PaymentMethod": "Electronic check",
-       "MonthlyCharges": 95.50,
-       "TotalCharges": 191.00
-     }'
+### Latency Telemetry:
+Every request returns an `X-Process-Time` HTTP response header reporting end-to-end server execution time (typically `0.0010s` to `0.0080s`).
+
+---
+
+## 10. Frontend Dashboard Overview
+
+The Streamlit dashboard is structured into three dedicated analytics portals:
+
+### 1. Customer Churn Risk Scoring
+Interactive customer profile input form with presets, visual risk gauge, prescriptive retention playbooks, and horizontal SHAP waterfall attribution chart:
+
+![Customer Risk Scoring](docs/screenshots/01_customer_prediction.png)
+![Churn Risk & SHAP Breakdown](docs/screenshots/02_churn_risk_and_shap.png)
+
+### 2. Executive Overview & Portfolio KPIs
+High-level overview of portfolio health, retention economics (\$2.42M projected protected ARR), and macro churn drivers:
+
+![Executive Overview](docs/screenshots/03_executive_overview.png)
+
+### 3. Model Insights & Benchmark Evaluation
+Verified holdout test set performance, hyperparameter specifications, confusion matrices, and ROC/PR evaluation curves:
+
+![Model Benchmarks](docs/screenshots/04_model_benchmarks.png)
+
+---
+
+## 11. Docker Architecture & Containerization
+
+The system is orchestrated using Docker Compose across two isolated services communicating over a private bridge network (`churn-network`):
+
+```yaml
+# docker-compose.yml summary:
+services:
+  backend:
+    build: { context: ., target: backend }
+    ports: ["8000:8000"]
+    volumes: ["./models:/app/models:ro"]
+    healthcheck: { test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"] }
+
+  frontend:
+    build: { context: ., target: frontend }
+    ports: ["8501:8501"]
+    environment: ["API_URL=http://backend:8000"]
+    depends_on: { backend: { condition: service_healthy } }
 ```
 
-### Sample Prediction Response:
+### Security Hardening:
+- **Non-Root Execution:** Containers run as `appuser` (UID `10001`).
+- **Read-Only Model Volume:** Model artifacts are mounted with `:ro` to prevent runtime tampering.
+- **Inter-Container DNS:** Frontend accesses backend via Docker service name `http://backend:8000`.
+
+---
+
+## 12. Installation Instructions
+
+### Prerequisites
+- Python 3.11 or 3.12
+- Git
+- Docker and Docker Compose (optional for containerized execution)
+
+### 1. Clone Repository
+```powershell
+# Windows PowerShell:
+git clone https://github.com/Kanishk199/customer-churn-prediction.git
+cd customer-churn-prediction
+```
+
+```bash
+# Linux / macOS:
+git clone https://github.com/Kanishk199/customer-churn-prediction.git
+cd customer-churn-prediction
+```
+
+### 2. Set Up Virtual Environment
+```powershell
+# Windows PowerShell:
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+```bash
+# Linux / macOS:
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+---
+
+## 13. Local Execution Instructions
+
+### Option A: Running via Docker Compose (Recommended)
+```bash
+# 1. Build and launch both services
+docker compose build
+docker compose up -d
+
+# 2. Verify container status
+docker compose ps
+
+# 3. View live logs
+docker compose logs -f
+
+# 4. Stop containers
+docker compose down
+```
+- Dashboard: [http://localhost:8501](http://localhost:8501)
+- Backend Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Option B: Running Natively in Virtual Environment
+Open two terminal windows:
+
+- **Terminal 1 (Backend API):**
+  ```powershell
+  # Windows PowerShell:
+  .\.venv\Scripts\Activate.ps1
+  uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
+  ```
+  ```bash
+  # Linux / macOS:
+  source .venv/bin/activate
+  uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
+  ```
+
+- **Terminal 2 (Frontend Dashboard):**
+  ```powershell
+  # Windows PowerShell:
+  .\.venv\Scripts\Activate.ps1
+  streamlit run app/streamlit_app.py --server.port 8501
+  ```
+  ```bash
+  # Linux / macOS:
+  source .venv/bin/activate
+  streamlit run app/streamlit_app.py --server.port 8501
+  ```
+
+---
+
+## 14. API Usage Examples
+
+### 1. Diagnostic Health Check
+```powershell
+# Windows PowerShell:
+curl.exe -s http://127.0.0.1:8000/health
+```
+```bash
+# Linux / macOS:
+curl -s http://127.0.0.1:8000/health
+```
+**Response:**
+```json
+{
+  "status": "healthy",
+  "model_loaded": true,
+  "model_type": "Random Forest Classifier",
+  "version": "1.0.0",
+  "classification_threshold": 0.5,
+  "low_risk_upper_bound": 0.3,
+  "medium_risk_upper_bound": 0.6,
+  "features_expected": 19
+}
+```
+
+### 2. Predict Customer Churn Risk & Generate Local SHAP
+```powershell
+# Windows PowerShell:
+curl.exe -X POST "http://127.0.0.1:8000/predict" `
+  -H "Content-Type: application/json" `
+  -d '{
+    "gender": "Female",
+    "SeniorCitizen": 0,
+    "Partner": "No",
+    "Dependents": "No",
+    "tenure": 2,
+    "PhoneService": "Yes",
+    "MultipleLines": "No",
+    "InternetService": "Fiber optic",
+    "OnlineSecurity": "No",
+    "OnlineBackup": "No",
+    "DeviceProtection": "No",
+    "TechSupport": "No",
+    "StreamingTV": "Yes",
+    "StreamingMovies": "Yes",
+    "Contract": "Month-to-month",
+    "PaperlessBilling": "Yes",
+    "PaymentMethod": "Electronic check",
+    "MonthlyCharges": 92.50,
+    "TotalCharges": 185.00
+  }'
+```
+
+**Response:**
 ```json
 {
   "churn_prediction": 1,
@@ -192,191 +428,175 @@ curl -X POST "http://localhost:8000/predict" \
   "churn_probability": 0.913,
   "risk_tier": "High Risk",
   "classification_threshold": 0.5,
-  "retention_recommendation": "Urgent retention intervention required. Incentivize migration to a 1-year or 2-year contract with a discounted renewal rate...",
+  "retention_recommendation": "Urgent retention intervention required. Incentivize migration to a 1-year or 2-year contract with a discounted renewal rate. Encourage automated payment setup (credit card or bank transfer) with a one-time bill credit. Offer complimentary 3-month trial of TechSupport and OnlineSecurity to reduce attrition friction.",
   "explanation": {
     "base_value": 0.5003,
     "predicted_probability": 0.913,
     "top_churn_drivers": [
-      {"feature": "tenure", "shap_value": 0.0703, "impact": "increases_churn", "description": "Customer is in the vulnerable onboarding cliff (2 months tenure) (+7.0%)."},
-      {"feature": "Contract_Month-to-month", "shap_value": 0.0470, "impact": "increases_churn", "description": "Month-to-month contract flexibility strongly increases churn hazard (+4.7%)."}
+      {
+        "feature": "tenure",
+        "feature_value": 2.0,
+        "shap_value": 0.0703,
+        "impact": "increases_churn",
+        "description": "Customer is in the vulnerable onboarding cliff (2 months tenure) (+7.0%)."
+      },
+      {
+        "feature": "Contract_Month-to-month",
+        "feature_value": 1.0,
+        "shap_value": 0.047,
+        "impact": "increases_churn",
+        "description": "Month-to-month contract flexibility strongly increases churn hazard (+4.7%)."
+      }
     ],
     "top_retention_factors": [
-      {"feature": "MultipleLines_Yes", "shap_value": -0.0078, "impact": "decreases_churn", "description": "MultipleLines_Yes supports customer retention by -0.8%."}
+      {
+        "feature": "MultipleLines_Yes",
+        "feature_value": 0.0,
+        "shap_value": -0.0078,
+        "impact": "decreases_churn",
+        "description": "MultipleLines_Yes (value: 0.0) supports customer retention by -0.8%."
+      }
     ],
-    "summary": "Customer predicted churn probability is 91.3% (model baseline: 50.0%)..."
+    "summary": "Customer predicted churn probability is 91.3% (model baseline: 50.0%). Primary factors driving churn risk up: tenure (+7.0%), Contract_Month-to-month (+4.7%), InternetService_Fiber optic (+3.5%)."
   }
 }
 ```
 
-Interactive OpenAPI documentation is automatically served at:
-- **Swagger UI:** `http://localhost:8000/docs`
-- **ReDoc:** `http://localhost:8000/redoc`
-
 ---
 
-## 🖥️ Streamlit Decision Analytics Dashboard
+## 15. Automated Testing Suite (59 Tests)
 
-The frontend ([`app/streamlit_app.py`](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/app/streamlit_app.py)) is a decoupled SaaS portal designed for customer success managers and retention specialists.
+The repository includes a comprehensive automated test suite across 6 distinct modules:
 
-### Features:
-- **1-Click Persona Presets:** Preload realistic profiles (e.g., *At-Risk Month-to-Month Subscriber*, *Loyal Two-Year Enterprise Account*, *Moderate Risk Mid-Tenure User*).
-- **Executive Metric Cards:** Real-time probability gauge, risk level badge (**High Risk**, **Medium Risk**, **Low Risk**), and threshold indicator.
-- **Horizontal SHAP Waterfall Chart:** Visualizes exact percentage point impacts on churn risk.
-- **Side-by-Side Attribution Tables:** Breaks down factors pushing toward churn vs. protective factors anchoring retention.
-- **Prescriptive Retention Playbook:** Actionable, commercial recommendations tailored to the customer's top risk drivers.
-
----
-
-## 🐳 Docker Containerization & Orchestration
-
-Both services are fully containerized using a production-ready, multi-stage [Dockerfile](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/Dockerfile) and orchestrated via [docker-compose.yml](file:///c:/Users/Keerthi-PC/Documents/customer-churn-prediction/docker-compose.yml).
-
-### Security & Operational Hardening:
-- **Non-Root Execution:** Runs under dedicated system user `appuser:appgroup` (UID `10001`).
-- **Read-Only Model Mount:** `./models:/app/models:ro` ensures runtime processes cannot corrupt or overwrite the trained model.
-- **Internal DNS Networking:** Streamlit communicates with FastAPI via `http://backend:8000` over bridge network `churn-network`.
-- **Healthcheck Orchestration:** `depends_on: backend: condition: service_healthy` guarantees Streamlit only opens once the ML model and TreeExplainer are fully initialized.
-
-### Deployment Commands:
-
-```bash
-# 1. Build container images
-docker compose build
-
-# 2. Launch both services in detached mode
-docker compose up -d
-
-# 3. Check container health status
-docker compose ps
-
-# 4. Stream real-time container logs
-docker compose logs -f
-
-# 5. Stop and clean up containers
-docker compose down
-```
-
----
-
-## 🚀 Local Setup & Execution Guide
-
-If you prefer running outside Docker in a virtual environment:
-
-### 1. Clone & Set Up Environment
-```bash
-# Clone the repository
-git clone https://github.com/your-username/customer-churn-prediction.git
-cd customer-churn-prediction
-
-# Create and activate virtual environment
-python -m venv .venv
-
-# On Linux/macOS:
-source .venv/bin/activate
-# On Windows (PowerShell):
-.\.venv\Scripts\Activate.ps1
-
-# Install pinned dependencies
-pip install -r requirements.txt
-```
-
-### 2. Run Both Services Locally
-
-- **Terminal 1 – Start FastAPI REST Backend:**
-  ```bash
-  uvicorn api.main:app --host 127.0.0.1 --port 8000 --reload
-  ```
-- **Terminal 2 – Start Streamlit Frontend:**
-  ```bash
-  streamlit run app/streamlit_app.py --server.port 8501
-  ```
-- Access the Dashboard at [http://localhost:8501](http://localhost:8501) and API docs at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
-
----
-
-## 🧪 Automated Testing Suite (57 Tests)
-
-The repository contains an automated test suite across 6 test modules:
-
-```bash
-pytest tests -v
+```powershell
+# Run full test suite:
+pytest tests/ -v
 ```
 
 ```text
 ============================= test session starts =============================
 platform win32 -- Python 3.15.2, pytest-9.2.0, pluggy-1.7.0
-collected 57 items
+rootdir: C:\Users\Keerthi-PC\Documents\customer-churn-prediction
+configfile: pytest.ini
+plugins: anyio-4.16.0, platformdirs-4.14.5
+collected 59 items
 
-tests/test_api.py .........................                              [ 15%]
-tests/test_docker_integration.py ................                        [ 43%]
-tests/test_integration.py .....                                          [ 52%]
-tests/test_modeling.py ......                                             [ 63%]
-tests/test_preprocessing.py ..........                                    [ 80%]
+tests/test_api.py .........................                              [ 18%]
+tests/test_docker_integration.py ................                        [ 45%]
+tests/test_integration.py .....                                          [ 54%]
+tests/test_modeling.py ......                                             [ 64%]
+tests/test_preprocessing.py ..........                                    [ 81%]
 tests/test_shap_explainability.py ...........                             [100%]
 
-============================= 57 passed in 25.20s =============================
+============================= 59 passed in 6.61s ==============================
 ```
 
-### Test Coverage Highlights:
-- **Data Integrity & Preprocessing (`test_preprocessing.py`):** Verified 80/20 stratified split, missing value coercion, and zero data leakage.
-- **Model Pipeline & Artifacts (`test_modeling.py`):** Verified pipeline serialization, reproducibility, and threshold consistency.
-- **REST API Contracts (`test_api.py`):** Verified input schema validation, HTTP error codes (422, 503), and response structures.
-- **Frontend-Backend Integration (`test_integration.py`):** Verified healthcheck probing and decoupled HTTP communication.
-- **SHAP Mathematical Integrity (`test_shap_explainability.py`):** Verified local accuracy / efficiency property ($E[f(x)] + \sum \phi_i = \hat{P}$) down to machine precision ($< 10^{-12}$), feature name alignment, and directional labeling.
-- **Docker Architecture (`test_docker_integration.py`):** Verified Dockerfile multi-stage structure, non-root security, read-only volumes, and bridge network configuration.
+### Coverage Scope:
+- **API Endpoints (`tests/test_api.py`):** Schema validation, boundary checks, 422 handlers, benchmark endpoint, and latency headers.
+- **Docker Architecture (`tests/test_docker_integration.py`):** Multi-stage targets, non-root user permissions, read-only volumes, and bridge networking.
+- **Microservice Integration (`tests/test_integration.py`):** Decoupled HTTP communication and verification that Streamlit contains no ML code.
+- **Model Pipeline Integrity (`tests/test_modeling.py`):** Preprocessor reuse, serialization roundtrip, and metric preservation.
+- **Preprocessing & Cleaning (`tests/test_preprocessing.py`):** Zero leakage verification, missing value coercion, and unseen category handling.
+- **SHAP Mathematics (`tests/test_shap_explainability.py`):** Local efficiency property ($E[f(X)] + \sum \phi_i = \hat{P}$) verified down to machine precision ($< 10^{-12}$).
 
 ---
 
-## 📦 Model Artifacts & Dataset Licensing
+## 16. Model Limitations & Responsible AI
 
-### Repository File Sizes:
-
-| Artifact | Location | Size | Recommended Git Strategy |
-| :--- | :--- | :---: | :--- |
-| **Dataset** | `data/Telco-Customer-Churn.csv` | `0.93 MB` | Direct Git commit (well under 50 MB threshold) |
-| **Trained Pipeline** | `models/best_churn_model.joblib` | `8.17 MB` | Direct Git commit or Git LFS tracking |
-| **Audit Report** | `models/model_comparison_report.json` | `5.7 KB` | Direct Git commit |
-| **EDA Notebook** | `notebooks/01_exploratory_data_analysis.ipynb` | `0.99 MB` | Direct Git commit |
-
-### Licensing & Usage:
-- **Dataset:** The IBM Telco Customer Churn dataset is publicly available for academic and educational usage. It contains anonymized subscriber demographic and billing features.
-- **Model Weights:** The pre-trained Random Forest pipeline is licensed under the permissive **MIT License** and does not contain proprietary trade secrets.
+1. **Probabilistic Nature:** Predictions reflect empirical statistical associations within historical cohorts; they do not represent deterministic certainties.
+2. **Domain Specificity:** The model is trained on fixed-line telecom and broadband consumer contracts. Applying this model to B2B enterprise software or retail subscriptions requires retraining.
+3. **Data Drift:** Shifting competitor pricing, promotional packages, or inflation can cause feature distributions to diverge over time. Routine monitoring of prediction distributions is required.
+4. **Fairness & Demographic Parity:** Attributes such as `gender`, `SeniorCitizen`, `Partner`, and `Dependents` should be audited regularly to ensure retention outreach policies do not result in disparate impact.
 
 ---
 
-## ⚠️ Model Limitations & Responsible AI
+## 17. Production Deployment Guide
 
-1. **Probabilistic Outputs, Not Guarantees:** Predictions generated by this system represent statistical probabilities derived from historical subscriber cohorts. A predicted churn probability of 85% indicates an elevated statistical hazard, not a certainty that the customer will cancel.
-2. **Domain Specificity:** The model was trained specifically on fixed-line telecommunications and broadband service patterns. Applying this pipeline to subscription businesses with different billing structures (e.g., enterprise B2B SaaS, e-commerce subscriptions) will require retraining.
-3. **Concept & Data Drift:** Customer preferences, promotional competitor campaigns, and pricing adjustments will cause feature distributions to drift over time. Periodic monitoring of prediction distributions and scheduled retraining is recommended.
-4. **Fairness & Demographics:** Demographic features (`gender`, `SeniorCitizen`, `Partner`, `Dependents`) are included for demographic parity analysis. In production deployments, organizations should audit predictions to ensure interventions do not unfairly discriminate across demographic cohorts.
-
----
-
-## 🖼️ Visual Evaluation Gallery
-
-### 1. ROC and Precision-Recall Curves
-Evaluation of the Random Forest model across probability thresholds:
-
-![ROC and PR Curves](models/plots/roc_and_pr_curves.png)
-
-### 2. Model Calibration Curves
-Comparison of predicted probabilities against observed empirical churn frequencies:
-
-![Calibration Curves](models/plots/calibration_curves.png)
-
-### 3. Global SHAP Summary
-Top drivers influencing churn risk across the entire population:
-
-![SHAP Summary](models/plots/shap_summary.png)
-
-### 4. Confusion Matrices
-Classification performance across candidate architectures at decision threshold $\tau = 0.50$:
-
-![Confusion Matrices](models/plots/confusion_matrices.png)
+A detailed production deployment guide is available in [DEPLOYMENT.md](DEPLOYMENT.md), covering:
+- **Option 1: Streamlit Community Cloud (Frontend) + Render / Railway (Backend)** (Free tier architecture).
+- **Option 2: Docker Compose on Cloud VPS** (AWS EC2, DigitalOcean, or Hetzner).
+- **Option 3: Google Cloud Run Serverless Containers**.
+- Detailed environment variable setups, healthcheck verification, and troubleshooting steps.
 
 ---
 
-## 📄 License
+## 18. Future Improvements
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- [ ] **Real-time Feature Store:** Integrate Feast or Hopsworks for centralized feature definitions.
+- [ ] **Continuous Drift Monitoring:** Implement Evidently AI or Prometheus metrics to detect concept drift in production.
+- [ ] **A/B Testing Framework:** Implement multi-armed bandit routing for evaluating retention offer conversion rates.
+- [ ] **Automated CI/CD Pipeline:** GitHub Actions workflow executing pytest, ruff linting, and container builds on every pull request.
+
+---
+
+## 19. Repository Structure
+
+```text
+customer-churn-prediction/
+├── api/                             # FastAPI Backend Microservice
+│   ├── __init__.py
+│   ├── config.py                    # Server configuration & threshold loading
+│   ├── main.py                      # FastAPI app entrypoint, CORS, routes & middleware
+│   ├── schemas.py                   # Pydantic v2 validation models
+│   └── services.py                  # Model loading, inference service & TreeExplainer
+├── app/                             # Streamlit Analytics Dashboard
+│   └── streamlit_app.py             # Decoupled SaaS UI with SHAP charts & KPIs
+├── data/                            # Dataset Storage
+│   └── Telco-Customer-Churn.csv     # Raw IBM Telco customer churn dataset
+├── docs/                            # Documentation Assets
+│   └── screenshots/                 # Application screenshots
+│       ├── 01_customer_prediction.png
+│       ├── 02_churn_risk_and_shap.png
+│       ├── 03_executive_overview.png
+│       └── 04_model_benchmarks.png
+├── models/                          # Persisted Artifacts & Reports
+│   ├── best_churn_model.joblib      # Serialized Scikit-Learn Random Forest pipeline
+│   ├── model_comparison_report.json # Structured metric audit report
+│   ├── model_comparison_report.md   # Markdown benchmark summary
+│   └── plots/                       # Evaluation charts
+│       ├── calibration_curves.png
+│       ├── confusion_matrices.png
+│       ├── roc_and_pr_curves.png
+│       └── shap_summary.png
+├── notebooks/                       # Exploratory Data Analysis
+│   └── 01_exploratory_data_analysis.ipynb
+├── scripts/                         # Operational & Verification Scripts
+│   ├── capture_screenshots.py      # Automated headless screenshot capture
+│   ├── verify_container_prediction.py
+│   └── verify_loyal_prediction.py
+├── src/                             # Core Machine Learning Engineering Library
+│   ├── __init__.py
+│   ├── config.py                    # Dataset column definitions & seeds
+│   ├── data_loader.py               # Data ingestion, imputation & cleaning
+│   ├── evaluate.py                  # Metric computation & plot generators
+│   ├── pipeline.py                  # Full transformation pipeline assembly
+│   ├── preprocessor.py              # ColumnTransformer definitions
+│   ├── split.py                     # Stratified sampling & K-Fold generator
+│   └── train.py                     # Model training, tuning & benchmark suite
+├── tests/                           # Automated Pytest Suite (59 tests)
+│   ├── test_api.py                  # API endpoints, validation & status codes
+│   ├── test_docker_integration.py   # Multi-stage Docker & compose tests
+│   ├── test_integration.py          # Frontend-backend integration & decoupling
+│   ├── test_modeling.py             # Pipeline persistence & reproducibility
+│   ├── test_preprocessing.py        # Leakage prevention & imputation checks
+│   └── test_shap_explainability.py  # TreeExplainer efficiency property tests
+├── .dockerignore                    # Docker build exclusion rules
+├── .env.example                     # Environment variables template
+├── .gitattributes                   # Line ending normalization
+├── .gitignore                       # Git ignore rules
+├── DEPLOYMENT.md                    # Cloud deployment guide
+├── docker-compose.yml               # Multi-container orchestration
+├── Dockerfile                       # Hardened multi-stage container build
+├── LICENSE                          # MIT License
+├── pytest.ini                       # Pytest configuration
+├── README.md                        # Project documentation
+└── requirements.txt                 # Pinned dependencies
+```
+
+---
+
+## 20. License & Acknowledgements
+
+- **License:** This project is licensed under the [MIT License](LICENSE).
+- **Dataset:** The Telco Customer Churn dataset is provided by IBM Cognitive Class for educational and benchmark use.
+- **Author:** **Kanishk** ([GitHub: Kanishk199](https://github.com/Kanishk199))

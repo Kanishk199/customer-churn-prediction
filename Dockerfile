@@ -38,6 +38,7 @@ COPY api/ ./api/
 COPY app/ ./app/
 COPY models/best_churn_model.joblib ./models/best_churn_model.joblib
 COPY models/model_comparison_report.json ./models/model_comparison_report.json
+COPY models/plots/ ./models/plots/
 
 # Enforce secure non-root file ownership
 RUN chown -R appuser:appgroup /app

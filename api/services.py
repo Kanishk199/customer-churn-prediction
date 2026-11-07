@@ -1,5 +1,6 @@
 """Inference service wrapping the saved Scikit-Learn Random Forest pipeline."""
 
+import json
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any, List
@@ -12,6 +13,7 @@ from sklearn.pipeline import Pipeline
 
 from api.config import (
     MODEL_PATH,
+    AUDIT_REPORT_PATH,
     CLASSIFICATION_THRESHOLD,
     LOW_RISK_UPPER_BOUND,
     MEDIUM_RISK_UPPER_BOUND,
@@ -326,6 +328,19 @@ class ModelService:
             retention_recommendation=pred.retention_recommendation,
             explanation=pred.explanation,
         )
+
+    def get_benchmark_data(self) -> Dict[str, Any]:
+        """Return the verified model benchmark comparison report from disk."""
+        if AUDIT_REPORT_PATH.exists():
+            try:
+                with open(AUDIT_REPORT_PATH, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception as e:
+                logger.warning("Could not read audit report from %s: %s", AUDIT_REPORT_PATH, e)
+        return {
+            "status": "unavailable",
+            "message": f"Audit report not found at {AUDIT_REPORT_PATH}",
+        }
 
 
 # Global singleton instance
