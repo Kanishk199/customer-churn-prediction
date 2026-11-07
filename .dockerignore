@@ -1,0 +1,35 @@
+# Virtual environments and dependencies
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Version control and IDE configuration
+.git/
+.gitignore
+.gitattributes
+.idea/
+.vscode/
+.gemini/
+
+# Build and distribution files
+dist/
+build/
+*.egg-info/
+
+# Development notebooks and scratch scripts
+notebooks/
+build_eda_notebook.py
+
+# System and logs
+.DS_Store
+Thumbs.db
+*.log

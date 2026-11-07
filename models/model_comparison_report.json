@@ -1,0 +1,169 @@
+{
+  "selected_best_model": "Random Forest",
+  "selection_rationale": "Selected based on balanced churn detection utility, maximizing Recall while preserving high ROC-AUC and PR-AUC with low calibration Brier score.",
+  "model_comparison": {
+    "logistic_regression": {
+      "display_name": "Logistic Regression",
+      "best_params": {
+        "classifier__C": 10.0,
+        "classifier__class_weight": null
+      },
+      "cv_metrics": {
+        "accuracy": 0.8038709158850814,
+        "precision": 0.6559184043363097,
+        "recall": 0.5491638795986622,
+        "f1": 0.5972953109196041,
+        "roc_auc": 0.8463591659756997,
+        "pr_auc": 0.6607560195607072,
+        "brier_score": 0.13494377610677802
+      },
+      "cv_metrics_std": {
+        "accuracy": 0.012637759301890417,
+        "precision": 0.027808093090320625,
+        "recall": 0.03850658987190438,
+        "f1": 0.029848252908601568,
+        "roc_auc": 0.01280681397244566,
+        "pr_auc": 0.018635641279321238,
+        "brier_score": 0.005220801533714327
+      },
+      "train_metrics": {
+        "accuracy": 0.8066650240806522,
+        "precision": 0.662693330954669,
+        "recall": 0.552675585284281,
+        "f1": 0.6026763106889012,
+        "roc_auc": 0.8499681916359115,
+        "pr_auc": 0.666746583875442,
+        "brier_score": 0.133246099909706
+      },
+      "overfitting_gap": {
+        "roc_auc_gap": 0.0036090256602118176,
+        "f1_gap": 0.005380999769297068,
+        "recall_gap": 0.00351170568561876
+      },
+      "business_utility_score": 0.6810802648211365,
+      "test_metrics": {
+        "accuracy": 0.8041163946061036,
+        "precision": 0.6540880503144654,
+        "recall": 0.5561497326203209,
+        "f1": 0.6011560693641619,
+        "roc_auc": 0.8412488051874241,
+        "pr_auc": 0.6281052651158737,
+        "brier_score": 0.13852012476342768,
+        "true_negatives": 925,
+        "false_positives": 110,
+        "false_negatives": 166,
+        "true_positives": 208
+      }
+    },
+    "random_forest": {
+      "display_name": "Random Forest",
+      "best_params": {
+        "classifier__class_weight": "balanced",
+        "classifier__max_depth": 10,
+        "classifier__min_samples_leaf": 4,
+        "classifier__n_estimators": 200
+      },
+      "cv_metrics": {
+        "accuracy": 0.7630482851878877,
+        "precision": 0.5371806188850016,
+        "recall": 0.779933110367893,
+        "f1": 0.6360011112126345,
+        "roc_auc": 0.8463547848530808,
+        "pr_auc": 0.6581991469630883,
+        "brier_score": 0.157309894606956
+      },
+      "cv_metrics_std": {
+        "accuracy": 0.010262987547441054,
+        "precision": 0.014204933539859216,
+        "recall": 0.019317095756780832,
+        "f1": 0.012330555766227049,
+        "roc_auc": 0.00858333210227478,
+        "pr_auc": 0.018056261884171785,
+        "brier_score": 0.004392706211495665
+      },
+      "train_metrics": {
+        "accuracy": 0.8265886113467584,
+        "precision": 0.6182918692329854,
+        "recall": 0.9056856187290968,
+        "f1": 0.7348741416726607,
+        "roc_auc": 0.9265064439862902,
+        "pr_auc": 0.8083206505415916,
+        "brier_score": 0.12249004239968668
+      },
+      "overfitting_gap": {
+        "roc_auc_gap": 0.08015165913320943,
+        "f1_gap": 0.09887303046002627,
+        "recall_gap": 0.12575250836120377
+      },
+      "business_utility_score": 0.7727472055865077,
+      "test_metrics": {
+        "accuracy": 0.7579843860894251,
+        "precision": 0.5298372513562387,
+        "recall": 0.7834224598930482,
+        "f1": 0.6321467098166127,
+        "roc_auc": 0.8425004520912449,
+        "pr_auc": 0.6568808626587341,
+        "brier_score": 0.16022565560263857,
+        "true_negatives": 775,
+        "false_positives": 260,
+        "false_negatives": 81,
+        "true_positives": 293
+      }
+    },
+    "gradient_boosting": {
+      "display_name": "Gradient Boosting",
+      "best_params": {
+        "classifier__class_weight": null,
+        "classifier__learning_rate": 0.05,
+        "classifier__max_depth": 3,
+        "classifier__n_estimators": 100
+      },
+      "cv_metrics": {
+        "accuracy": 0.8040490085910029,
+        "precision": 0.6704102713134188,
+        "recall": 0.5150501672240801,
+        "f1": 0.5820500846466394,
+        "roc_auc": 0.849417069412475,
+        "pr_auc": 0.6716284973831913,
+        "brier_score": 0.13370895641046082
+      },
+      "cv_metrics_std": {
+        "accuracy": 0.010207963050520175,
+        "precision": 0.02596545465569835,
+        "recall": 0.033041040896932335,
+        "f1": 0.026588072050849877,
+        "roc_auc": 0.011336961138510099,
+        "pr_auc": 0.02067046711064616,
+        "brier_score": 0.0049257813364265
+      },
+      "train_metrics": {
+        "accuracy": 0.8204208616430048,
+        "precision": 0.7095293494108973,
+        "recall": 0.5474916387959865,
+        "f1": 0.617957727455913,
+        "roc_auc": 0.873065300587405,
+        "pr_auc": 0.7190354738025624,
+        "brier_score": 0.12372809512033252
+      },
+      "overfitting_gap": {
+        "roc_auc_gap": 0.02364823117492998,
+        "f1_gap": 0.03590764280927361,
+        "recall_gap": 0.032441471571906355
+      },
+      "business_utility_score": 0.6712231655297961,
+      "test_metrics": {
+        "accuracy": 0.8041163946061036,
+        "precision": 0.6737588652482269,
+        "recall": 0.5080213903743316,
+        "f1": 0.5792682926829268,
+        "roc_auc": 0.845209124493012,
+        "pr_auc": 0.6605424469102444,
+        "brier_score": 0.1356481976350527,
+        "true_negatives": 943,
+        "false_positives": 92,
+        "false_negatives": 184,
+        "true_positives": 190
+      }
+    }
+  }
+}
